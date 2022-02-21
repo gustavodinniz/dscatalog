@@ -1,0 +1,1 @@
+sudo docker run --name dscatalog -p 5437:5432 -e POSTGRES_DB=dscatalog-db -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=123456 postgres:12
