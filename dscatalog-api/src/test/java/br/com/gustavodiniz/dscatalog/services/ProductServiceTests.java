@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -27,6 +26,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 public class ProductServiceTests {
@@ -58,10 +59,12 @@ public class ProductServiceTests {
         category = Factory.createCategory();
         page = new PageImpl<>(List.of(product));
 
-        Mockito.when(repository.findAll((Pageable) ArgumentMatchers.any())).thenReturn(page);
-        Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(product);
+        Mockito.when(repository.findAll((Pageable)any())).thenReturn(page);
+        Mockito.when(repository.save(any())).thenReturn(product);
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product));
         Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        Mockito.when(repository.find(any(), any(), any())).thenReturn(page);
 
         Mockito.when(repository.getOne(existingId)).thenReturn(product);
         Mockito.when(repository.getOne(nonExistingId)).thenThrow(EntityNotFoundException.class);
@@ -105,15 +108,13 @@ public class ProductServiceTests {
         Assertions.assertNotNull(result);
     }
 
-//    @Test
-//    public void findAllPagedShouldReturnPage() {
-//
-//        Pageable pageable = PageRequest.of(0, 10);
-//        Page<ProductDTO> result = service.findAllPaged(pageable);
-//        Assertions.assertNotNull(result);
-//
-//        Mockito.verify(repository, Mockito.times(1)).findAll(pageable);
-//    }
+    @Test
+    public void findAllPagedShouldReturnPage() {
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ProductDTO> result = service.findAllPaged(0L, "", pageable);
+        Assertions.assertNotNull(result);
+    }
 
     @Test
     public void deleteShouldThrowDatabaseExceptionWhenDependentId() {
